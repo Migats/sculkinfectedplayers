@@ -1,0 +1,12 @@
+{
+  "values": [
+    "minecraft:drink",
+    "minecraft:eat",
+    "minecraft:elytra_glide",
+    "minecraft:equip",
+    "minecraft:hit_ground",
+    "minecraft:step",
+    "minecraft:swim",
+    "minecraft:flap"
+  ]
+}

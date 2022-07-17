@@ -1,0 +1,22 @@
+{
+  "entity.player.sculkinfection.infected": {
+    "sounds": [
+      "sculkinfected:infection/infected"
+    ]
+  },
+  "entity.player.sculkinfection.cured": {
+    "sounds": [
+      "sculkinfected:infection/cured"
+    ]
+  },
+  "entity.player.sculkinfection.hurt": {
+    "sounds": [
+      "sculkinfected:infection/hurt"
+    ]
+  },
+  "entity.player.sculkinfection.death": {
+    "sounds": [
+      "sculkinfected:infection/death"
+    ]
+  }
+}

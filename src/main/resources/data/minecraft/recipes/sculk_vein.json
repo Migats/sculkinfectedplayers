@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#G"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:echo_shard"
+    },
+    "G": {
+      "item": "minecraft:glow_lichen"
+    }
+  },
+  "result": {
+    "item": "minecraft:sculk_vein",
+    "count": 1
+  }
+}
