@@ -1,32 +1,21 @@
 package net.migats21.sculkinfected.capabilities;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.migats21.sculkinfected.SculkInfected;
-import net.migats21.sculkinfected.client.SculkOverlay;
 import net.migats21.sculkinfected.network.ClientboundInfectionUpdatePacket;
 import net.migats21.sculkinfected.network.PacketHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.api.distmarker.OnlyIns;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.PacketDistributor;
-
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
 
-    @OnlyIn(Dist.CLIENT)
-    private static final SculkTimer LOCAL_INSTANCE = new SculkTimer();
-    @OnlyIn(Dist.CLIENT)
-    private static final SculkOverlay timerOverlay = new SculkOverlay();
+    private static final SculkTimer LOCAL_INSTANCE = DistExecutor.unsafeRunForDist(() -> () -> new SculkTimer(), () -> () -> null);
     private int time = -1;
     private static final int MAX_TIME = 2400000;
 
@@ -63,11 +52,6 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderTimer(PoseStack poseStack) {
-        timerOverlay.renderSculkbar(poseStack);
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public int getDaytime() {
         return (int) Math.min(Math.floor(time / 24000f) + 1, 100);
     }
@@ -78,8 +62,8 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderOverlay() {
-        timerOverlay.renderOverlay((float) Math.pow((float)time / MAX_TIME, 4d));
+    public float getOverlayDarkness() {
+        return (float) Math.pow((float)time / MAX_TIME, 4d);
     }
 
     @OnlyIn(Dist.CLIENT)

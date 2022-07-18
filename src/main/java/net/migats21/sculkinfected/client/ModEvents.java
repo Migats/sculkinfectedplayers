@@ -12,9 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
-import net.minecraftforge.client.gui.overlay.NamedGuiOverlay;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -23,6 +21,7 @@ import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = SculkInfected.MODID, value = Dist.CLIENT)
 public class ModEvents {
+    private static final SculkOverlay OVERLAY = new SculkOverlay();
     @SubscribeEvent
     public static void updateTimer(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START && event.side == LogicalSide.CLIENT && Objects.requireNonNull(Minecraft.getInstance().gameMode).canHurtPlayer()) SculkTimer.getLocalInstance().tick();
@@ -30,13 +29,13 @@ public class ModEvents {
     @SubscribeEvent
     public static void renderSculkOverlay(RenderGuiEvent.Pre event) {
         if (!SculkTimer.getLocalInstance().isCured()) {
-            SculkTimer.getLocalInstance().renderOverlay();
+            OVERLAY.renderOverlay(SculkTimer.getLocalInstance().getOverlayDarkness());
         }
     }
     @SubscribeEvent
     public static void renderSculkTimer(RenderGuiEvent.Post event) {
         if (!SculkTimer.getLocalInstance().isCured()) {
-            SculkTimer.getLocalInstance().renderTimer(event.getPoseStack());
+            OVERLAY.renderSculkbar(event.getPoseStack());
         }
     }
     @SubscribeEvent

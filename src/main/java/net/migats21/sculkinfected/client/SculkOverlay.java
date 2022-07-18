@@ -16,10 +16,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SculkOverlay extends GuiComponent {
     private static final ResourceLocation GUI_LOCATION = new ResourceLocation(SculkInfected.MODID, "textures/gui/sculkbar.png");
     private static final ResourceLocation OVERLAY = new ResourceLocation(SculkInfected.MODID, "textures/misc/sculk_overlay.png");
-    protected final Minecraft minecraft;
-    public SculkOverlay() {
-        this.minecraft = Minecraft.getInstance();
-    }
+    protected final Minecraft minecraft = Minecraft.getInstance();
+
     public void renderSculkbar(PoseStack pos) {
         if (this.minecraft.gameMode == null) return;
         if (this.minecraft.gameMode.canHurtPlayer()) {
