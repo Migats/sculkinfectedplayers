@@ -5,6 +5,7 @@
     "minecraft:elytra_glide",
     "minecraft:equip",
     "minecraft:hit_ground",
+    "minecraft:item_interact_finish",
     "minecraft:step",
     "minecraft:swim",
     "minecraft:flap"
