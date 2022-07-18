@@ -1,6 +1,5 @@
 package net.migats21.sculkinfected.capabilities;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.migats21.sculkinfected.network.ClientboundInfectionUpdatePacket;
 import net.migats21.sculkinfected.network.PacketHandler;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +14,7 @@ import net.minecraftforge.network.PacketDistributor;
 
 public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
 
-    private static final SculkTimer LOCAL_INSTANCE = DistExecutor.unsafeRunForDist(() -> () -> new SculkTimer(), () -> () -> null);
+    private static final SculkTimer LOCAL_INSTANCE = DistExecutor.unsafeRunForDist(() -> SculkTimer::new, () -> () -> null);
     private int time = -1;
     private static final int MAX_TIME = 2400000;
 
@@ -118,9 +117,7 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
 
     @Override
     public void reset(boolean onTick) {
-        if (time > 0) {
-            this.set(onTick ? 0 : -1);
-        }
+        this.set(onTick ? 0 : -1);
     }
 
     @Override
