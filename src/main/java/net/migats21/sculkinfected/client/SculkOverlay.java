@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -21,7 +22,7 @@ public class SculkOverlay extends GuiComponent {
     public void renderSculkbar(PoseStack pos) {
         if (this.minecraft.gameMode == null) return;
         if (this.minecraft.gameMode.canHurtPlayer()) {
-            int posX = this.minecraft.getWindow().getGuiScaledWidth() / 2 - 145;
+            int posX = this.minecraft.getWindow().getGuiScaledWidth() / 2 - (this.minecraft.player.getOffhandItem().isEmpty() || this.minecraft.player.getMainArm() == HumanoidArm.LEFT ? 145 : 173);
             int posY = this.minecraft.getWindow().getGuiScaledHeight() - 8;
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -36,6 +37,7 @@ public class SculkOverlay extends GuiComponent {
             this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 9, 0);
             this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 11, 0);
             this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 10, SculkTimer.getLocalInstance().isWarning() ? (SculkTimer.getLocalInstance().isFlash() ? 16777215 : 11141120) : SculkTimer.getLocalInstance().isNearingDeath() ? 16777045 : 43690);
+            // TODO: Adding sculk hearts that render when taking infection damage
         }
     }
 
