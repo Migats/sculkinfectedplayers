@@ -20,33 +20,34 @@ import net.minecraftforge.network.PacketDistributor;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class InfectionCommand {
 
     public static final SimpleCommandExceptionType UNINFECTED_ERROR = new SimpleCommandExceptionType(Component.literal("Players are not infected"));
+    public static final SimpleCommandExceptionType NO_INFECTION_ERROR = new SimpleCommandExceptionType(Component.literal("No players are infected"));
     public static final SimpleCommandExceptionType INFECTED_ERROR = new SimpleCommandExceptionType(Component.literal("Players are already infected"));
     public static final SimpleCommandExceptionType SIDE_ERROR = new SimpleCommandExceptionType(Component.literal("Cannot call command infection from illegal side"));
-
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("infection").requires((sourceStack) ->
-            sourceStack.hasPermission(2)).then(Commands.argument("target", EntityArgument.players()).then(
-                Commands.literal("add").executes(
+            sourceStack.hasPermission(2)).then(
+                Commands.literal("add").then(Commands.argument("target", EntityArgument.players()).executes(
                     (commandContext) -> addInfection(commandContext.getSource(), EntityArgument.getPlayers(commandContext,"target"))
-                )
+                ))
             ).then(
-                Commands.literal("clear").executes(
+                Commands.literal("clear").then(Commands.argument("target", EntityArgument.players()).executes(
                     (commandContext) -> clearInfection(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "target"))
-                )
+                ))
             ).then(
-                Commands.literal("get").executes(
+                Commands.literal("get").then(Commands.argument("target", EntityArgument.players()).executes(
                     (commandContext) -> getTime(commandContext.getSource(), EntityArgument.getPlayer(commandContext, "target"), false)
                 ).then(
                     Commands.literal("days").executes(
                         (commandContext) -> getTime(commandContext.getSource(), EntityArgument.getPlayer(commandContext, "target"), true)
                     )
-                )
+                ))
             ).then(
-                Commands.literal("set").then(
+                Commands.literal("set").then(Commands.argument("target", EntityArgument.players()).then(
                     Commands.argument("time", IntegerArgumentType.integer(0, 2400000)).executes(
                         (commandContext) -> setTime(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "target"), IntegerArgumentType.getInteger(commandContext, "time"))
                     ).then(
@@ -54,9 +55,24 @@ public class InfectionCommand {
                             (commandContext) -> setTime(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "target"), IntegerArgumentType.getInteger(commandContext, "time") * 24000)
                         )
                     )
+                ))
+            ).then(
+                Commands.literal("list").executes(
+                    (commandContext) -> getList(commandContext.getSource())
                 )
-            ))
+            )
         );
+    }
+
+    private static int getList(CommandSourceStack sourceStack) throws CommandSyntaxException {
+        List<ServerPlayer> players = sourceStack.getServer().getPlayerList().getPlayers().stream().filter((player) -> player.getTags().contains("sculk_infected")).collect(Collectors.toList());
+        if (players.isEmpty()) {throw NO_INFECTION_ERROR.create();}
+        StringBuilder str = new StringBuilder();
+        for (ServerPlayer player : players) {
+            str.append(player.getDisplayName().getString()).append(", ");
+        }
+        sourceStack.sendSuccess(Component.literal(str.toString().replaceAll(", $",(players.size() == 1 ? " is" : " are") + " infected")), false);
+        return players.size();
     }
 
     private static int clearInfection(CommandSourceStack sourceStack, Collection<ServerPlayer> target) throws CommandSyntaxException {
