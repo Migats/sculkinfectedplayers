@@ -4,10 +4,16 @@
     "minecraft:eat",
     "minecraft:elytra_glide",
     "minecraft:equip",
+    "minecraft:fluid_pickup",
+    "minecraft:fluid_place",
     "minecraft:hit_ground",
     "minecraft:item_interact_finish",
+    "minecraft:projectile_shoot",
+    "minecraft:shear",
+    "minecraft:splash",
     "minecraft:step",
     "minecraft:swim",
+    "minecraft:teleport",
     "minecraft:flap"
   ]
 }
