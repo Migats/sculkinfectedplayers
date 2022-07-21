@@ -18,10 +18,6 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
     private int time = -1;
     private static final int MAX_TIME = 2400000;
 
-    public SculkTimer() {
-
-    }
-
     public static ISculkTimer getFromPlayer(Player player) {
         if (player.level.isClientSide) {
             if (player.isLocalPlayer()) {
@@ -56,23 +52,22 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean isWarning() {
-        return time >= 2376000;
+    public int getDaytimeColor() {
+        if (time > MAX_TIME && time % 20 < 3) {
+            return 16777215;
+        }
+        if (time >= 2376000) {
+            return 11141120;
+        }
+        if (time >= 2304000) {
+            return 16777045;
+        }
+        return 43690;
     }
 
     @OnlyIn(Dist.CLIENT)
     public float getOverlayDarkness() {
         return (float) Math.pow((float)time / MAX_TIME, 4d);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isFlash() {
-        return time > MAX_TIME && time % 20 < 3;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isNearingDeath() {
-        return time >= 2304000;
     }
 
     public float getDamage() {

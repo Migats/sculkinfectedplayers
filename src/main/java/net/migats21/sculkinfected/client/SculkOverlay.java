@@ -36,7 +36,7 @@ public class SculkOverlay extends GuiComponent {
             this.minecraft.font.draw(pos, text, posX + 26 - textWidth / 2f, posY - 10, 0);
             this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 9, 0);
             this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 11, 0);
-            this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 10, SculkTimer.getLocalInstance().isWarning() ? (SculkTimer.getLocalInstance().isFlash() ? 16777215 : 11141120) : SculkTimer.getLocalInstance().isNearingDeath() ? 16777045 : 43690);
+            this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 10, SculkTimer.getLocalInstance().getDaytimeColor());
             // TODO: Adding sculk hearts that render when taking infection damage
         }
     }
