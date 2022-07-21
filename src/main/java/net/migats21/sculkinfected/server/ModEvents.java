@@ -186,7 +186,7 @@ public class ModEvents {
     }
     @SubscribeEvent
     public static void AttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof ServerPlayer player) {
+        if (event.getObject() instanceof ServerPlayer) {
             event.addCapability(SculkTimerProvider.location, new SculkTimerProvider());
         }
     }

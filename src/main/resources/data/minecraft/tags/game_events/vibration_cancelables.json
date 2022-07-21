@@ -4,6 +4,7 @@
     "minecraft:eat",
     "minecraft:elytra_glide",
     "minecraft:equip",
+    "minecraft:entity_die",
     "minecraft:fluid_pickup",
     "minecraft:fluid_place",
     "minecraft:hit_ground",
