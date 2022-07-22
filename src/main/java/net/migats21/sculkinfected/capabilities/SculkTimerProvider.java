@@ -8,6 +8,7 @@ import net.migats21.sculkinfected.SculkInfected;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.LazyOptional;
@@ -20,8 +21,12 @@ public class SculkTimerProvider implements ICapabilitySerializable<CompoundTag> 
 
     public static final ResourceLocation location = new ResourceLocation(SculkInfected.MODID, "sculkinfection");
     public static final Capability<ISculkTimer> SCULK_TIMER = CapabilityManager.get(new CapabilityToken<>(){});
-    private SculkTimer instance = new SculkTimer();
+    private SculkTimer instance;
     private LazyOptional<ISculkTimer> lazyOptional = LazyOptional.of(() -> instance);
+
+    public SculkTimerProvider(ServerPlayer player) {
+        instance = new SculkTimer(() -> player);
+    }
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {

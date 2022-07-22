@@ -28,15 +28,15 @@ public class SculkOverlay extends GuiComponent {
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
             RenderSystem.setShaderTexture(0, GUI_LOCATION);
             this.blit(pos, posX, posY, 0, 0, 50, 5);
-            this.blit(pos, posX, posY, 0, 5, (int) (SculkTimer.getLocalInstance().getProgress() * 50), 5);
+            this.blit(pos, posX, posY, 0, 5, (int) (LocalSculkTimer.getInstance().getProgress() * 50), 5);
             this.blit(pos, posX + 13, posY - 24, 0, 10, 24, 24);
-            Component text = Component.literal("Day " + SculkTimer.getLocalInstance().getDaytime());
+            Component text = Component.literal("Day " + LocalSculkTimer.getInstance().getDaytime());
             int textWidth = this.minecraft.font.width(text);
             this.minecraft.font.draw(pos, text, posX + 24 - textWidth / 2f, posY - 10, 0);
             this.minecraft.font.draw(pos, text, posX + 26 - textWidth / 2f, posY - 10, 0);
             this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 9, 0);
             this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 11, 0);
-            this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 10, SculkTimer.getLocalInstance().getDaytimeColor());
+            this.minecraft.font.draw(pos, text, posX + 25 - textWidth / 2f, posY - 10, LocalSculkTimer.getInstance().getDaytimeColor());
             // TODO: Adding sculk hearts that render when taking infection damage
         }
     }

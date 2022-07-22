@@ -1,28 +1,36 @@
 package net.migats21.sculkinfected.capabilities;
 
+import net.migats21.sculkinfected.SculkInfected;
+import net.migats21.sculkinfected.client.LocalSculkTimer;
 import net.migats21.sculkinfected.network.ClientboundInfectionUpdatePacket;
 import net.migats21.sculkinfected.network.PacketHandler;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.PacketDistributor;
 
-public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
+import java.util.function.Supplier;
 
-    private static final SculkTimer LOCAL_INSTANCE = DistExecutor.unsafeRunForDist(() -> SculkTimer::new, () -> () -> null);
-    private int time = -1;
-    private static final int MAX_TIME = 2400000;
+public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
+    protected int time = -1;
+    private final Supplier<Player> OWNER;
+    protected static final int MAX_TIME = 2400000;
+
+    public SculkTimer(Supplier<Player> player) {
+        OWNER = player;
+    }
 
     public static ISculkTimer getFromPlayer(Player player) {
         if (player.level.isClientSide) {
             if (player.isLocalPlayer()) {
-                return LOCAL_INSTANCE;
+                return LocalSculkTimer.getInstance();
             } else {
+                SculkInfected.LOGGER.error("Can't access remote player {} from client", player.getDisplayName().getString());
                 return null;
             }
         } else {
@@ -30,61 +38,13 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
         }
     }
 
+    @Override
     public void tick() {
         if (time > -1) {
             time++;
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public float getProgress() {
-        return Mth.clamp((float)time / MAX_TIME, 0f, 1f);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static SculkTimer getLocalInstance() {
-        return LOCAL_INSTANCE;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public int getDaytime() {
-        return (int) Math.min(Math.floor(time / 24000f) + 1, 100);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public int getDaytimeColor() {
-        if (time > MAX_TIME && time % 20 < 3) {
-            return 16777215;
-        }
-        if (time >= 2376000) {
-            return 11141120;
-        }
-        if (time >= 2304000) {
-            return 16777045;
-        }
-        return 43690;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public float getOverlayDarkness() {
-        return (float) Math.pow((float)time / MAX_TIME, 4d);
-    }
-
-    public float getDamage() {
-        if (time > MAX_TIME && time % 100 == 0) {
-            return (time - MAX_TIME) / 1000f;
-        }
-        return 0.0f;
-    }
-    @OnlyIn(Dist.CLIENT)
-    public boolean isCured() {
-        return time == -1;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isJustInfected() {
-        return time == 0;
-    }
 
     @Override
     public int get() {
@@ -92,12 +52,22 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
     }
 
     @Override
-    public void set(int i) {
-        time = i;
+    public float getDamage() {
+        if (time > MAX_TIME && time % 100 == 0) {
+            return (time - MAX_TIME) / 1000f;
+        }
+        return 0.0f;
     }
 
-    public void setChanged(ServerPlayer player) {
-        PacketHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientboundInfectionUpdatePacket(time));
+    @Override
+    public void set(int i) {
+        time = i;
+        setChanged(false);
+    }
+
+    @Override
+    public void setChanged(boolean transform) {
+        PacketHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) OWNER.get()), new ClientboundInfectionUpdatePacket(time,transform));
     }
 
     @Override
@@ -108,11 +78,42 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
     @Override
     public void setRelative(int deltaTime) {
         time += deltaTime;
+        setChanged(false);
     }
 
     @Override
-    public void reset(boolean onTick) {
-        this.set(onTick ? 0 : -1);
+    public void reset() {
+        time = -1;
+        setChanged(false);
+    }
+
+    @Override
+    public void infect() {
+        if (time > -1) {
+            SculkInfected.LOGGER.error("Cannot run 'infect' since player is already infected");
+            return;
+        }
+        time = 0;
+        setChanged(true);
+        Player player = OWNER.get();
+        player.playNotifySound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.MASTER, 1f, 1f);
+        Component message = Component.literal(player.getDisplayName().getString() + " got sculk infected");
+        player.getServer().getPlayerList().broadcastSystemMessage(message, ChatType.SYSTEM);
+    }
+
+    @Override
+    public void cure() {
+        if (time == -1) {
+            SculkInfected.LOGGER.error("Cannot run 'cure' since player is not infected");
+            return;
+        }
+        time = -1;
+        setChanged(true);
+        Player player = OWNER.get();
+        player.heal(20f);
+        player.playNotifySound(SoundEvents.TOTEM_USE, SoundSource.MASTER, 1f, 1f);
+        Component message = Component.literal(player.getDisplayName().getString() + " got cured from sculk infection");
+        player.getServer().getPlayerList().broadcastSystemMessage(message, ChatType.SYSTEM);
     }
 
     @Override

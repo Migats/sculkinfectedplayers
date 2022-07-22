@@ -58,23 +58,11 @@ public class ModEvents {
             if (entity != null && entity.getType() == EntityType.WARDEN) {
                 if (player.addTag("sculk_infected")) {
                     List<ServerPlayer> playerList = player.getServer().getPlayerList().getPlayers();
-                    SculkTimer.getFromPlayer(player).reset(true);
-                    player.playNotifySound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.MASTER, 1f, 1f);
-                    Component message = Component.literal(player.getDisplayName().getString() + " got sculk infected");
-                    for (ServerPlayer player1 : playerList) {
-                        player1.sendSystemMessage(message);
-                    }
+                    SculkTimer.getFromPlayer(player).infect();
                 }
             } else if (event.getSource() == DamageSource.WITHER && player.getTags().contains("sculk_infected") && event.getAmount() >= player.getHealth()) {
                 player.removeTag("sculk_infected");
-                SculkTimer.getFromPlayer(player).reset(false);
-                player.heal(20f);
-                player.playNotifySound(SoundEvents.TOTEM_USE, SoundSource.MASTER, 1f, 1f);
-                List<ServerPlayer> playerList = player.getServer().getPlayerList().getPlayers();
-                Component literal = Component.literal(player.getDisplayName().getString() + " got cured from sculk infection");
-                for (ServerPlayer player1 : playerList) {
-                    player1.sendSystemMessage(literal);
-                }
+                SculkTimer.getFromPlayer(player).cure();
             }
         }
     }
@@ -89,7 +77,7 @@ public class ModEvents {
         if (entity instanceof ServerPlayer player && player.getTags().contains("sculk_infected")) {
             if (event.getSource() == ServerDamageSource.SCULK) {
                 player.setGameMode(GameType.SPECTATOR);
-                SculkTimer.getFromPlayer(player).reset(false);
+                SculkTimer.getFromPlayer(player).set(-1);
                 player.removeTag("sculk_infected");
             }
             ExperienceOrb.award((ServerLevel) player.level, player.position(), player.totalExperience);
@@ -160,7 +148,6 @@ public class ModEvents {
                 if (player.getTags().contains("sculk_infected")) {
                     ISculkTimer sculkTimer = SculkTimer.getFromPlayer(player);
                     sculkTimer.setRelative(deltaTime);
-                    sculkTimer.setChanged(player);
                 }
             });
         }
@@ -174,7 +161,6 @@ public class ModEvents {
             player_old.getCapability(SculkTimerProvider.SCULK_TIMER).ifPresent((sculkTimer) -> {
                 player_new.getCapability(SculkTimerProvider.SCULK_TIMER).ifPresent((sculkTimer1) -> {
                     sculkTimer1.copy(sculkTimer);
-                    sculkTimer1.setChanged((ServerPlayer) player_new);
                 });
             });
             player_old.invalidateCaps();
@@ -186,14 +172,14 @@ public class ModEvents {
     }
     @SubscribeEvent
     public static void AttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof ServerPlayer) {
-            event.addCapability(SculkTimerProvider.location, new SculkTimerProvider());
+        if (event.getObject() instanceof ServerPlayer player) {
+            event.addCapability(SculkTimerProvider.location, new SculkTimerProvider(player));
         }
     }
     @SubscribeEvent
     public static void RegisterPlayerInfection(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player && player.getTags().contains("sculk_infected")) {
-            SculkTimer.getFromPlayer(player).setChanged(player);
+            SculkTimer.getFromPlayer(player).setChanged(false);
         }
     }
     @SubscribeEvent

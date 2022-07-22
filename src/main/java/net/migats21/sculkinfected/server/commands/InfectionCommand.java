@@ -81,15 +81,7 @@ public class InfectionCommand {
             if (player.removeTag("sculk_infected")) {
                 ISculkTimer sculkTimer = SculkTimer.getFromPlayer(player);
                 if (sculkTimer == null) throw SIDE_ERROR.create();
-                sculkTimer.reset(false);
-                player.heal(20f);
-                PacketHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientboundInfectionUpdatePacket(-1));
-                player.playNotifySound(SoundEvents.TOTEM_USE, SoundSource.MASTER, 1f, 1f);
-                List<ServerPlayer> playerList = Objects.requireNonNull(player.getServer()).getPlayerList().getPlayers();
-                Component literal = Component.literal(player.getDisplayName().getString() + " got cured from sculk infection");
-                for (ServerPlayer player1 : playerList) {
-                    player1.sendSystemMessage(literal);
-                }
+                sculkTimer.cure();
                 i++;
             }
         }
@@ -114,13 +106,7 @@ public class InfectionCommand {
                 List<ServerPlayer> playerList = Objects.requireNonNull(player.getServer()).getPlayerList().getPlayers();
                 ISculkTimer sculkTimer = SculkTimer.getFromPlayer(player);
                 if (sculkTimer == null) throw SIDE_ERROR.create();
-                sculkTimer.reset(true);
-                PacketHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientboundInfectionUpdatePacket(0));
-                player.playNotifySound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.MASTER, 1f, 1f);
-                Component message = Component.literal(player.getDisplayName().getString() + " got sculk infected");
-                for (ServerPlayer player1 : playerList) {
-                    player1.sendSystemMessage(message);
-                }
+                sculkTimer.infect();
                 i++;
             }
         }
@@ -160,8 +146,6 @@ public class InfectionCommand {
                 ISculkTimer sculkTimer = SculkTimer.getFromPlayer(player);
                 if (sculkTimer == null) throw SIDE_ERROR.create();
                 sculkTimer.set(time);
-                sculkTimer.setChanged(player);
-                PacketHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientboundInfectionUpdatePacket(time));
                 i++;
             }
         }
