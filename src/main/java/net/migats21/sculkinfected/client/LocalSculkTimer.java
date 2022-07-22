@@ -20,11 +20,15 @@ public class LocalSculkTimer extends SculkTimer {
     }
 
     public static void renderOverlay() {
-        OVERLAY.renderOverlay(INSTANCE.getOverlayDarkness());
+        if (!INSTANCE.isCured()) {
+            OVERLAY.renderOverlay(INSTANCE.getOverlayDarkness());
+        }
     }
 
     public static void renderSculkbar(PoseStack poseStack) {
-        OVERLAY.renderSculkbar(poseStack);
+        if (!INSTANCE.isCured()) {
+            OVERLAY.renderSculkbar(poseStack);
+        }
     }
 
     @Override

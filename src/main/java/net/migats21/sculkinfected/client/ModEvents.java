@@ -26,15 +26,11 @@ public class ModEvents {
     }
     @SubscribeEvent
     public static void renderSculkOverlay(RenderGuiEvent.Pre event) {
-        if (!LocalSculkTimer.getInstance().isCured()) {
-            LocalSculkTimer.renderOverlay();
-        }
+        LocalSculkTimer.renderOverlay();
     }
     @SubscribeEvent
     public static void renderSculkTimer(RenderGuiEvent.Post event) {
-        if (!LocalSculkTimer.getInstance().isCured()) {
-            LocalSculkTimer.renderSculkbar(event.getPoseStack());
-        }
+        LocalSculkTimer.renderSculkbar(event.getPoseStack());
     }
     @SubscribeEvent
     public static void removeTimer(ClientPlayerNetworkEvent.LoggingOut event) {
