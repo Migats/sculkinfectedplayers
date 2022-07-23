@@ -3,7 +3,6 @@ package net.migats21.sculkinfected.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.migats21.sculkinfected.SculkInfected;
-import net.migats21.sculkinfected.capabilities.SculkTimer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;

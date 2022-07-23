@@ -1,7 +1,5 @@
 package net.migats21.sculkinfected.capabilities;
 
-import net.minecraft.server.level.ServerPlayer;
-
 public interface ISculkTimer {
     public int get();
     public void set(int i);

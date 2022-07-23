@@ -6,21 +6,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.migats21.sculkinfected.capabilities.ISculkTimer;
 import net.migats21.sculkinfected.capabilities.SculkTimer;
-import net.migats21.sculkinfected.network.ClientboundInfectionUpdatePacket;
-import net.migats21.sculkinfected.network.PacketHandler;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraftforge.network.PacketDistributor;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class InfectionCommand {
 
@@ -65,7 +58,7 @@ public class InfectionCommand {
     }
 
     private static int getList(CommandSourceStack sourceStack) throws CommandSyntaxException {
-        List<ServerPlayer> players = sourceStack.getServer().getPlayerList().getPlayers().stream().filter((player) -> player.getTags().contains("sculk_infected")).collect(Collectors.toList());
+        List<ServerPlayer> players = sourceStack.getServer().getPlayerList().getPlayers().stream().filter((player) -> player.getTags().contains("sculk_infected")).toList();
         if (players.isEmpty()) {throw NO_INFECTION_ERROR.create();}
         StringBuilder str = new StringBuilder();
         for (ServerPlayer player : players) {
@@ -103,7 +96,6 @@ public class InfectionCommand {
         int i = 0;
         for (ServerPlayer player : target) {
             if (player.addTag("sculk_infected")) {
-                List<ServerPlayer> playerList = Objects.requireNonNull(player.getServer()).getPlayerList().getPlayers();
                 ISculkTimer sculkTimer = SculkTimer.getFromPlayer(player);
                 if (sculkTimer == null) throw SIDE_ERROR.create();
                 sculkTimer.infect();

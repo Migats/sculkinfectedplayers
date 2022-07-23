@@ -1,7 +1,6 @@
 package net.migats21.sculkinfected.network;
 
 import net.migats21.sculkinfected.SculkInfected;
-import net.migats21.sculkinfected.capabilities.SculkTimer;
 import net.migats21.sculkinfected.client.LocalSculkTimer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;

@@ -39,6 +39,7 @@ public class ModEvents {
     @SubscribeEvent
     public static void replaceSound(PlaySoundEvent event) {
         Player player = Minecraft.getInstance().player;
+        if (player == null) return;
         if (event.getOriginalSound().getLocation().equals(SoundEvents.ELDER_GUARDIAN_CURSE.getLocation()) && LocalSculkTimer.getInstance().shouldPlayInfectionSound()) {
             event.setSound(new SimpleSoundInstance(ModSoundEvents.PLAYER_INFECTED.get(), SoundSource.PLAYERS, 1f, 1f, RandomSource.create(), player.getX(), player.getY(), player.getZ()));
         } else if (event.getOriginalSound().getLocation().equals(SoundEvents.TOTEM_USE.getLocation()) && LocalSculkTimer.getInstance().playedCureSound()) {

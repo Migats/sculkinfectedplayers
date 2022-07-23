@@ -12,11 +12,8 @@ import net.migats21.sculkinfected.capabilities.SculkTimerProvider;
 import net.migats21.sculkinfected.server.commands.InfectionCommand;
 import net.migats21.sculkinfected.server.item.Items;
 import net.migats21.sculkinfected.server.util.ModGameEventTags;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -54,10 +51,9 @@ public class ModEvents {
     @SubscribeEvent
     public static void InfectedOrCured(LivingHurtEvent event) {
         Entity entity = event.getSource().getEntity();
-        if (event.getEntity() instanceof Player player) {
+        if (event.getEntity() instanceof ServerPlayer player) {
             if (entity != null && entity.getType() == EntityType.WARDEN) {
                 if (player.addTag("sculk_infected")) {
-                    List<ServerPlayer> playerList = player.getServer().getPlayerList().getPlayers();
                     SculkTimer.getFromPlayer(player).infect();
                 }
             } else if (event.getSource() == DamageSource.WITHER && player.getTags().contains("sculk_infected") && event.getAmount() >= player.getHealth()) {
@@ -70,7 +66,7 @@ public class ModEvents {
     public static void HealedBySculk(LivingDeathEvent event) {
         Entity source = event.getSource().getEntity();
         Entity entity = event.getEntity();
-        if (source instanceof Player player && player.getTags().contains("sculk_infected") && entity instanceof LivingEntity livingEntity) {
+        if (source instanceof ServerPlayer player && player.getTags().contains("sculk_infected") && entity instanceof LivingEntity livingEntity) {
             player.heal(Math.min(livingEntity.getExperienceReward() / 2f, 4f));
             return;
         }
@@ -104,6 +100,9 @@ public class ModEvents {
             for(Player player1 : playerList) {
                 if (player1.getTags().contains("sculk_infected")) {
                     player1.hurt(ServerDamageSource.CATALYST, 10);
+                    if (player == player1) {
+                        event.setExpToDrop(0);
+                    }
                 }
             }
         }
