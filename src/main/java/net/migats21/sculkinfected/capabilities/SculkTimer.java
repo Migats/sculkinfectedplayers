@@ -77,8 +77,10 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
 
     @Override
     public void setRelative(int deltaTime) {
-        time += deltaTime;
-        setChanged(false);
+        if (time < MAX_TIME) {
+            time = Math.min(time + deltaTime, MAX_TIME);
+            setChanged(false);
+        }
     }
 
     @Override
