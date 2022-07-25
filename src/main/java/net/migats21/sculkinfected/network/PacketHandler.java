@@ -9,7 +9,11 @@ import net.minecraftforge.network.simple.SimpleChannel;
 public class PacketHandler {
     private static final String PROTOCOL_VERSION = "1";
 
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(SculkInfected.MODID, "main"), () -> PROTOCOL_VERSION, (protocol_version) -> PROTOCOL_VERSION.equals(protocol_version) || NetworkRegistry.ACCEPTVANILLA.equals(protocol_version) || NetworkRegistry.ABSENT.equals(protocol_version), (protocol_version) -> PROTOCOL_VERSION.equals(protocol_version) || NetworkRegistry.ACCEPTVANILLA.equals(protocol_version) || NetworkRegistry.ABSENT.equals(protocol_version));
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(SculkInfected.MODID, "main"), () -> PROTOCOL_VERSION, PacketHandler::validateProtocol, PacketHandler::validateProtocol);
+
+    private static boolean validateProtocol(String protocol_version) {
+        return PROTOCOL_VERSION.equals(protocol_version) || NetworkRegistry.ACCEPTVANILLA.equals(protocol_version) || NetworkRegistry.ABSENT.equals(protocol_version);
+    }
 
     private PacketHandler() {
 
