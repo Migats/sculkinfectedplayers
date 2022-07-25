@@ -18,5 +18,14 @@
     "sounds": [
       "sculkinfected:infection/death"
     ]
+  },
+  "entity.ambient.sculkinfection.vibration": {
+    "sounds": [
+      "sculkinfected:infection/vibration_1",
+      "sculkinfected:infection/vibration_2",
+      "sculkinfected:infection/vibration_3",
+      "sculkinfected:infection/vibration_4",
+      "sculkinfected:infection/vibration_5"
+    ]
   }
 }

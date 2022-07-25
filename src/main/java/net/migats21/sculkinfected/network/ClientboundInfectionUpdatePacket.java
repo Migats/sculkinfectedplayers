@@ -11,8 +11,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class ClientboundInfectionUpdatePacket {
-    public final int sculk_time;
-    public final boolean transformed;
+
+    private final int sculk_time;
+    private final boolean transformed;
 
     public ClientboundInfectionUpdatePacket(int sculk_time, boolean transformed) {
         this.sculk_time = sculk_time;
@@ -30,16 +31,13 @@ public class ClientboundInfectionUpdatePacket {
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> context) {
-        final AtomicBoolean status = new AtomicBoolean(false);
         context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             SculkInfected.LOGGER.info("The sculktimer has been synchronized with the server");
             LocalSculkTimer.getInstance().set(sculk_time);
             if (transformed) {
                 LocalSculkTimer.getInstance().turnOnSound();
             }
-            status.set(true);
         }));
-        context.get().setPacketHandled(true);
-        return status.get();
+        return true;
     }
 }

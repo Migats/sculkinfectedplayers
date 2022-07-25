@@ -9,11 +9,15 @@ import net.migats21.sculkinfected.SculkInfected;
 import net.migats21.sculkinfected.capabilities.ISculkTimer;
 import net.migats21.sculkinfected.capabilities.SculkTimer;
 import net.migats21.sculkinfected.capabilities.SculkTimerProvider;
+import net.migats21.sculkinfected.network.ClientboundAmbientVibratePacket;
+import net.migats21.sculkinfected.network.PacketHandler;
 import net.migats21.sculkinfected.server.commands.InfectionCommand;
 import net.migats21.sculkinfected.server.item.Items;
 import net.migats21.sculkinfected.server.util.ModGameEventTags;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -21,12 +25,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SculkShriekerBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -43,6 +50,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -50,8 +58,8 @@ import java.util.List;
 public class ModEvents {
     @SubscribeEvent
     public static void InfectedOrCured(LivingHurtEvent event) {
-        Entity entity = event.getSource().getEntity();
         if (event.getEntity() instanceof ServerPlayer player) {
+            Entity entity = event.getSource().getEntity();
             if (entity != null && entity.getType() == EntityType.WARDEN) {
                 if (player.addTag("sculk_infected")) {
                     SculkTimer.getFromPlayer(player).infect();
@@ -60,6 +68,8 @@ public class ModEvents {
                 player.removeTag("sculk_infected");
                 SculkTimer.getFromPlayer(player).cure();
             }
+        } else if (event.getSource().getDirectEntity() instanceof ServerPlayer player && player.getTags().contains("sculk_infected") && event.getEntity() instanceof Animal entity) {
+            event.setAmount(entity.getHealth());
         }
     }
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -133,9 +143,16 @@ public class ModEvents {
         }
     }
     @SubscribeEvent
-    public static void CancelVibrations(VanillaGameEvent event) {
-        if (event.getVanillaEvent().is(ModGameEventTags.VIBRATION_CANCELABLE) && event.getCause() instanceof Player player && player.getTags().contains("sculk_infected") && !player.hasEffect(MobEffects.DARKNESS)) {
-            event.setCanceled(true);
+    public static void HandleVibrations(VanillaGameEvent event) {
+        if (event.getCause() instanceof Player player && player.getTags().contains("sculk_infected")) {
+            event.setCanceled(event.getVanillaEvent().is(ModGameEventTags.VIBRATION_CANCELABLE) && !player.hasEffect(MobEffects.DARKNESS) || player.isCreative());
+        }
+        if (!event.isCanceled() && event.getVanillaEvent().is(ModGameEventTags.VIBRATION_DETECTABLE) && RandomSource.create().nextBoolean() && (event.getCause() == null && !event.getCause().isSilent())) {
+            Level level = event.getLevel();
+            List<ServerPlayer> players = level.getEntitiesOfClass(ServerPlayer.class, AABB.ofSize(event.getEventPosition(), 16d, 16d, 16d), (player) -> player.getTags().contains("sculk_infected"));
+            for (ServerPlayer player : players) {
+                PacketHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ClientboundAmbientVibratePacket(event.getEventPosition()));
+            }
         }
     }
     @SubscribeEvent

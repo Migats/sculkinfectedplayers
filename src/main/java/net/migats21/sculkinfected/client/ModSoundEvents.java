@@ -20,6 +20,7 @@ public class ModSoundEvents {
     public static final RegistryObject<SoundEvent> PLAYER_HURT = register("entity.player.sculkinfection.hurt");
     public static final RegistryObject<SoundEvent> PLAYER_DEATH = register("entity.player.sculkinfection.death");
     // TODO: Make a sound that plays whenever a game event is detected
+    public static final RegistryObject<SoundEvent> SCULK_VIBRATE = register("entity.ambient.sculkinfection.vibration");
 
     private static RegistryObject<SoundEvent> register(String key) {
         return SOUND_EVENTS.register(key, () -> new SoundEvent(new ResourceLocation(SculkInfected.MODID, key)));

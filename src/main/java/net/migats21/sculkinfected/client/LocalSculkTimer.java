@@ -3,7 +3,11 @@ package net.migats21.sculkinfected.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.migats21.sculkinfected.capabilities.SculkTimer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,6 +18,7 @@ public class LocalSculkTimer extends SculkTimer {
     private static final SculkOverlay OVERLAY = new SculkOverlay();
     public boolean playedInfectionSound = false;
     private boolean playedCureSound = false;
+    private int vibrationCooldown = 0;
 
     public LocalSculkTimer() {
         super(() -> Minecraft.getInstance().player);
@@ -34,6 +39,12 @@ public class LocalSculkTimer extends SculkTimer {
     @Override
     public void setChanged(boolean transform) {
 
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (vibrationCooldown > 0) vibrationCooldown--;
     }
 
     public static LocalSculkTimer getInstance() {
@@ -91,5 +102,14 @@ public class LocalSculkTimer extends SculkTimer {
         } else {
             playedInfectionSound = false;
         }
+    }
+
+    public void playVibrationSound(BlockPos pos) {
+        if (vibrationCooldown <= 0) {
+            Player player = Minecraft.getInstance().player;
+            RandomSource random = RandomSource.create();
+            player.level.playSound(player, pos, ModSoundEvents.SCULK_VIBRATE.get(), SoundSource.AMBIENT, getProgress() * 0.8f, (random.nextFloat() - random.nextFloat()) * 0.4f + 1.0f);
+        }
+        vibrationCooldown = 20;
     }
 }

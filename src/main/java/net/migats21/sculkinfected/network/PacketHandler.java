@@ -22,6 +22,8 @@ public class PacketHandler {
     public static void register() {
         int i = 0;
         CHANNEL.messageBuilder(ClientboundInfectionUpdatePacket.class, i++, NetworkDirection.PLAY_TO_CLIENT).encoder(ClientboundInfectionUpdatePacket::write).decoder(ClientboundInfectionUpdatePacket::new).consumerNetworkThread(ClientboundInfectionUpdatePacket::handle).add();
+        CHANNEL.messageBuilder(ClientboundAmbientVibratePacket.class, i++, NetworkDirection.PLAY_TO_CLIENT).encoder(ClientboundAmbientVibratePacket::write).decoder(ClientboundAmbientVibratePacket::new).consumerNetworkThread(ClientboundAmbientVibratePacket::handle).add();
+        SculkInfected.LOGGER.info("Registered {} message types for channel sculkinfected:main on {}", i, PROTOCOL_VERSION);
     }
 
 }

@@ -67,7 +67,7 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
 
     @Override
     public void setChanged(boolean transform) {
-        PacketHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) OWNER.get()), new ClientboundInfectionUpdatePacket(time,transform));
+        PacketHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) OWNER.get()), new ClientboundInfectionUpdatePacket(time, transform));
     }
 
     @Override
@@ -98,7 +98,9 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
         time = 0;
         setChanged(true);
         Player player = OWNER.get();
-        player.playNotifySound(SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.MASTER, 1f, 1f);
+        // If the player is moving while the sound is playing, it still must be present to it's current position.
+        player.playNotifySound(SoundEvents.ELDER_GUARDIAN_CURSE, player.getSoundSource(), 1f, 1f);
+        player.playSound(SoundEvents.ELDER_GUARDIAN_CURSE, 1f, 1f);
         Component message = Component.literal(player.getDisplayName().getString() + " got sculk infected");
         player.getServer().getPlayerList().broadcastSystemMessage(message, ChatType.SYSTEM);
     }
@@ -113,7 +115,9 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
         setChanged(true);
         Player player = OWNER.get();
         player.heal(20f);
-        player.playNotifySound(SoundEvents.TOTEM_USE, SoundSource.MASTER, 1f, 1f);
+        // If the player is moving while the sound is playing, it still must be present to it's current position.
+        player.playNotifySound(SoundEvents.TOTEM_USE, player.getSoundSource(), 1f, 1f);
+        player.playSound(SoundEvents.TOTEM_USE, 1f, 1f);
         Component message = Component.literal(player.getDisplayName().getString() + " got cured from sculk infection");
         player.getServer().getPlayerList().broadcastSystemMessage(message, ChatType.SYSTEM);
     }
