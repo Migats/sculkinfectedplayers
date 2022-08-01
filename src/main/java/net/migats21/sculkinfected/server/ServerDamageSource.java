@@ -7,6 +7,7 @@ package net.migats21.sculkinfected.server;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
 public class ServerDamageSource extends DamageSource {
     public final String GLOBAL_MESSAGE;
@@ -20,7 +21,7 @@ public class ServerDamageSource extends DamageSource {
     public static final DamageSource SCULK = new ServerDamageSource("sculk", " is taken over by sculk infestation").bypassArmor().bypassMagic().bypassEnchantments();
 
     @Override
-    public Component getLocalizedDeathMessage(LivingEntity entity) {
+    public @NotNull Component getLocalizedDeathMessage(LivingEntity entity) {
         return Component.literal(entity.getDisplayName().getString() + GLOBAL_MESSAGE);
     }
 }

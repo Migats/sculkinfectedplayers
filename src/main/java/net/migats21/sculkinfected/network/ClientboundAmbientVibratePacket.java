@@ -8,7 +8,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 // Can't use CliendboundSoundPacket since it requires the sound to be present on both sides
@@ -37,9 +36,7 @@ public class ClientboundAmbientVibratePacket {
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            LocalSculkTimer.getInstance().playVibrationSound(new BlockPos(x, y, z));
-        }));
+        context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> LocalSculkTimer.getInstance().playVibrationSound(new BlockPos(x, y, z))));
         return true;
     }
 

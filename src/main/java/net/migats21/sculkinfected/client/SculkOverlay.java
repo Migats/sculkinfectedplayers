@@ -19,7 +19,7 @@ public class SculkOverlay extends GuiComponent {
     protected final Minecraft minecraft = Minecraft.getInstance();
 
     public void renderSculkbar(PoseStack pos) {
-        if (this.minecraft.gameMode == null) return;
+        if (this.minecraft.gameMode == null || this.minecraft.player == null) return;
         if (this.minecraft.gameMode.canHurtPlayer()) {
             int posX = this.minecraft.getWindow().getGuiScaledWidth() / 2 - (this.minecraft.player.getOffhandItem().isEmpty() || this.minecraft.player.getMainArm() == HumanoidArm.LEFT ? 145 : 173);
             int posY = this.minecraft.getWindow().getGuiScaledHeight() - 8;

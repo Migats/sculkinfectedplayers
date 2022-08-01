@@ -107,6 +107,7 @@ public class LocalSculkTimer extends SculkTimer {
     public void playVibrationSound(BlockPos pos) {
         if (vibrationCooldown <= 0) {
             Player player = Minecraft.getInstance().player;
+            if (player == null) return;
             RandomSource random = RandomSource.create();
             player.level.playSound(player, pos, ModSoundEvents.SCULK_VIBRATE.get(), SoundSource.AMBIENT, getProgress() * 0.8f, (random.nextFloat() - random.nextFloat()) * 0.4f + 1.0f);
         }

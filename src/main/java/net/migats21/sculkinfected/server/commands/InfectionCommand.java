@@ -20,7 +20,6 @@ public class InfectionCommand {
     public static final SimpleCommandExceptionType UNINFECTED_ERROR = new SimpleCommandExceptionType(Component.literal("Players are not infected"));
     public static final SimpleCommandExceptionType NO_INFECTION_ERROR = new SimpleCommandExceptionType(Component.literal("No players are infected"));
     public static final SimpleCommandExceptionType INFECTED_ERROR = new SimpleCommandExceptionType(Component.literal("Players are already infected"));
-    public static final SimpleCommandExceptionType SIDE_ERROR = new SimpleCommandExceptionType(Component.literal("Cannot call command infection from illegal side"));
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("infection").requires((sourceStack) ->
             sourceStack.hasPermission(2)).then(
@@ -73,7 +72,6 @@ public class InfectionCommand {
         for (ServerPlayer player : target) {
             if (player.removeTag("sculk_infected")) {
                 ISculkTimer sculkTimer = SculkTimer.getFromPlayer(player);
-                if (sculkTimer == null) throw SIDE_ERROR.create();
                 sculkTimer.cure();
                 i++;
             }
@@ -97,7 +95,6 @@ public class InfectionCommand {
         for (ServerPlayer player : target) {
             if (player.addTag("sculk_infected")) {
                 ISculkTimer sculkTimer = SculkTimer.getFromPlayer(player);
-                if (sculkTimer == null) throw SIDE_ERROR.create();
                 sculkTimer.infect();
                 i++;
             }
@@ -119,7 +116,6 @@ public class InfectionCommand {
     private static int getTime(CommandSourceStack sourceStack, ServerPlayer target, boolean bool) throws CommandSyntaxException {
         if (target.getTags().contains("sculk_infected")) {
             ISculkTimer sculkTimer = SculkTimer.getFromPlayer(target);
-            if (sculkTimer == null) throw SIDE_ERROR.create();
             int sculk_time = sculkTimer.get();
             if (bool) sculk_time = sculk_time / 24000;
             sourceStack.sendSuccess(Component.literal(target.getDisplayName().getString() + " has an infection time of " + sculk_time + (bool ? " days" : "")), false);
@@ -136,7 +132,6 @@ public class InfectionCommand {
         for (ServerPlayer player : target) {
             if (player.getTags().contains("sculk_infected")) {
                 ISculkTimer sculkTimer = SculkTimer.getFromPlayer(player);
-                if (sculkTimer == null) throw SIDE_ERROR.create();
                 sculkTimer.set(time);
                 i++;
             }

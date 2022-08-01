@@ -9,7 +9,6 @@ import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.network.PacketDistributor;
@@ -34,8 +33,12 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
                 return null;
             }
         } else {
-            return player.getCapability(SculkTimerProvider.SCULK_TIMER, null).orElse(null);
+            return getFromPlayer((ServerPlayer) player);
         }
+    }
+
+    public static ISculkTimer getFromPlayer(ServerPlayer player) {
+        return player.getCapability(SculkTimerProvider.SCULK_TIMER, null).orElse(null);
     }
 
     @Override
@@ -44,7 +47,6 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
             time++;
         }
     }
-
 
     @Override
     public int get() {
@@ -95,9 +97,13 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
             SculkInfected.LOGGER.error("Cannot run 'infect' since player is already infected");
             return;
         }
+        Player player = OWNER.get();
+        if (player.getServer() == null) {
+            SculkInfected.LOGGER.error("Method 'infect' should not be called on the client");
+            return;
+        }
         time = 0;
         setChanged(true);
-        Player player = OWNER.get();
         // If the player is moving while the sound is playing, it still must be present to it's current position.
         player.playNotifySound(SoundEvents.ELDER_GUARDIAN_CURSE, player.getSoundSource(), 1f, 1f);
         player.playSound(SoundEvents.ELDER_GUARDIAN_CURSE, 1f, 1f);
@@ -111,9 +117,13 @@ public class SculkTimer implements ISculkTimer, INBTSerializable<CompoundTag> {
             SculkInfected.LOGGER.error("Cannot run 'cure' since player is not infected");
             return;
         }
+        Player player = OWNER.get();
+        if (player.getServer() == null) {
+            SculkInfected.LOGGER.error("Method 'infect' should not be called on the client");
+            return;
+        }
         time = -1;
         setChanged(true);
-        Player player = OWNER.get();
         player.heal(20f);
         // If the player is moving while the sound is playing, it still must be present to it's current position.
         player.playNotifySound(SoundEvents.TOTEM_USE, player.getSoundSource(), 1f, 1f);
